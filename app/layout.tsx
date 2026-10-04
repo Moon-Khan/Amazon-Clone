@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SessionProvider } from "next-auth/react";
 import "./globals.css";
 import { Header } from "@/components/chrome/Header";
 import { SecondaryNav } from "@/components/chrome/SecondaryNav";
@@ -27,10 +28,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        <Header />
-        <SecondaryNav />
-        <main className="flex flex-1 flex-col">{children}</main>
-        <Footer />
+        <SessionProvider>
+          <Header />
+          <SecondaryNav />
+          <main className="flex flex-1 flex-col">{children}</main>
+          <Footer />
+        </SessionProvider>
       </body>
     </html>
   );
