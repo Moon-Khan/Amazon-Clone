@@ -1,0 +1,26 @@
+# 8x Amazon Clone
+
+This repo is a 24-hour rebuild of amazon.com's core shopping experience (browse, search, product detail, cart, checkout, orders) for the 8x Software Engineer assignment, built as a pragmatic Next.js + Prisma + Postgres modular monolith, following `screen shots/` as the visual/UX reference and deployed continuously to a live Vercel URL.
+
+@docs/PLAN.md
+@docs/PROGRESS.md
+
+## Rules
+
+1. Work on ONE phase at a time, only when the user explicitly says so (e.g. "Do Phase 3").
+2. At the start of any session, read `docs/PROGRESS.md` first and state which phase we're on before doing anything else.
+3. Before starting a phase, give a short plan (max 10 bullets) and wait for the user's OK — do not start implementation until they confirm.
+4. Keep it simple: no microservices, no message queues, no extra libraries/dependencies beyond what's in `docs/PLAN.md` without asking first.
+5. For UI, follow the screenshots in `screen shots/` as the visual source of truth.
+6. Never leave a phase half-broken. If something is taking too long, stub it, note the gap in `docs/PROGRESS.md`, and move on rather than blocking.
+7. Do not touch `.agent-logs/` or its hooks (`.claude/settings.json`, `.claude/hooks/log_prompt.js`, `.claude/hooks/log_response.js`) — capture is already verified and working.
+
+## Scope cuts for this build (deferred, not part of MVP)
+
+Deferred from the full architecture in `docs/PLAN.md` to fit the 24-hour budget — documented as "scalability notes" in the README rather than implemented: Upstash Redis caching, API rate limiting, Vercel Cron, trigram/GIN search index, load testing, Faker-based seed padding, search autocomplete. Seed data comes from DummyJSON only (~100–150 products), with color/size variants added to 10–15 products.
+
+Still implemented despite the cuts: ISR on public pages, DB connection pooling, indexes on all foreign keys, pagination on list endpoints, and a transactional, stock-safe checkout.
+
+## Testing
+
+`npm run verify` is the single check command (typecheck + lint + vitest + build). Write unit/API tests only for risky logic: cart totals, checkout/stock decrement, search/filter queries. Maintain one Playwright smoke test for the main flow (browse → PDP → cart → checkout), extended each phase.
