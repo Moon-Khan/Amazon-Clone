@@ -29,7 +29,7 @@ export function SearchBar() {
   return (
     <form action="/search" className="flex h-10 flex-1" role="search" aria-label="Site search">
       <Select value={department} onValueChange={(v) => v && setDepartment(v)} name="category">
-        <SelectTrigger className="w-auto rounded-r-none rounded-l-md border-r bg-neutral-100 text-xs text-black focus-visible:ring-0">
+        <SelectTrigger className="h-10 w-auto shrink-0 gap-1 rounded-l-md rounded-r-none border-0 border-r border-neutral-300 bg-neutral-100 px-2.5 text-xs text-black shadow-none hover:bg-neutral-200 focus-visible:ring-0 data-[size=default]:h-10">
           <SelectValue>{DEPARTMENTS.find((d) => d.value === department)?.label ?? "All"}</SelectValue>
         </SelectTrigger>
         <SelectContent>
