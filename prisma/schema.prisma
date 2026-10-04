@@ -1,5 +1,6 @@
-// Placeholder schema for Phase 0 (Foundation). Real data model (User, Product,
-// Category, Cart, Order, ...) is added in Phase 1 per docs/PLAN.md §8.
+// Real data model for the Amazon clone. See docs/PLAN.md §8 for the design
+// rationale and docs/PROGRESS.md for the Phase 1 scope cuts that apply here
+// (DummyJSON-only seeding, no Faker padding).
 
 generator client {
   provider = "prisma-client-js"
@@ -9,4 +10,180 @@ datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime @default(now())
+
+  addresses Address[]
+  reviews   Review[]
+  cart      Cart?
+  orders    Order[]
+}
+
+model Address {
+  id        String  @id @default(cuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  line1     String
+  line2     String?
+  city      String
+  state     String
+  zip       String
+  country   String
+  isDefault Boolean @default(false)
+
+  orders Order[]
+
+  @@index([userId])
+}
+
+model Category {
+  id       String     @id @default(cuid())
+  name     String
+  slug     String     @unique
+  parentId String?
+  parent   Category?  @relation("CategoryToParent", fields: [parentId], references: [id], onDelete: SetNull)
+  children Category[] @relation("CategoryToParent")
+
+  products Product[]
+
+  @@index([parentId])
+}
+
+model Product {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String
+  brand           String
+  description     String
+  categoryId      String
+  category        Category @relation(fields: [categoryId], references: [id])
+  basePrice       Decimal  @db.Decimal(10, 2)
+  listPrice       Decimal? @db.Decimal(10, 2)
+  images          Json
+  ratingAvg       Float    @default(0)
+  ratingCount     Int      @default(0)
+  stock           Int      @default(0)
+  isPrimeEligible Boolean  @default(true)
+  createdAt       DateTime @default(now())
+
+  variants ProductVariant[]
+  reviews  Review[]
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+  deals      Deal[]
+
+  @@index([categoryId])
+  @@index([categoryId, basePrice])
+  @@index([title])
+}
+
+model ProductVariant {
+  id         String  @id @default(cuid())
+  productId  String
+  product    Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  type       String // "color" | "size"
+  value      String
+  priceDelta Decimal @default(0) @db.Decimal(10, 2)
+  stock      Int     @default(0)
+  sku        String  @unique
+
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  @@index([productId])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating    Int
+  title     String?
+  body      String
+  createdAt DateTime @default(now())
+
+  @@unique([productId, userId])
+  @@index([productId])
+}
+
+model Cart {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  items CartItem[]
+}
+
+model CartItem {
+  id        String          @id @default(cuid())
+  cartId    String
+  cart      Cart            @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product         @relation(fields: [productId], references: [id])
+  variantId String?
+  variant   ProductVariant? @relation(fields: [variantId], references: [id])
+  quantity  Int
+  addedAt   DateTime        @default(now())
+
+  @@unique([cartId, productId, variantId])
+  @@index([cartId])
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  status      OrderStatus @default(pending)
+  subtotal    Decimal     @db.Decimal(10, 2)
+  tax         Decimal     @db.Decimal(10, 2)
+  shippingFee Decimal     @db.Decimal(10, 2)
+  total       Decimal     @db.Decimal(10, 2)
+  addressId   String
+  address     Address     @relation(fields: [addressId], references: [id])
+  placedAt    DateTime    @default(now())
+
+  items OrderItem[]
+
+  @@index([userId])
+  @@index([placedAt])
+}
+
+enum OrderStatus {
+  pending
+  placed
+  shipped
+  delivered
+}
+
+model OrderItem {
+  id                 String          @id @default(cuid())
+  orderId            String
+  order              Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId          String
+  product            Product         @relation(fields: [productId], references: [id])
+  variantId          String?
+  variant            ProductVariant? @relation(fields: [variantId], references: [id])
+  quantity           Int
+  unitPriceAtPurchase Decimal        @db.Decimal(10, 2)
+
+  @@index([orderId])
+}
+
+model Deal {
+  id              String   @id @default(cuid())
+  productId       String
+  product         Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  discountPercent Int
+  startsAt        DateTime
+  endsAt          DateTime
+
+  @@index([productId])
 }

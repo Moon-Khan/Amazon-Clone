@@ -10,7 +10,10 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "verify": "npm run typecheck && npm run lint && npm run test && npm run build",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "db:migrate": "node scripts/with-env.mjs npx prisma migrate dev",
+    "db:seed": "node scripts/with-env.mjs npx tsx prisma/seed.ts",
+    "db:studio": "node scripts/with-env.mjs npx prisma studio"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
@@ -33,7 +36,11 @@
     "prisma": "6.19.3",
     "shadcn": "^4.21.1",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5",
     "vitest": "^5.0.3"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   }
 }
