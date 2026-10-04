@@ -5,7 +5,7 @@ Status legend: `todo` / `doing` / `done`. Times in UTC. Update this file as part
 | Phase | Status | Start | End | Notes / known gaps |
 |---|---|---|---|---|
 | 0. Foundation | done | 2026-10-04T04:03:08Z | 2026-10-04T05:02:53Z | Next.js 16+TS+Tailwind+shadcn scaffolded; Prisma 6.19.3 (pinned stable, not the 7.x RC that defaults in and changes config to `prisma.config.ts`+driver adapters) wired with placeholder `url`/`directUrl` schema; `npm run verify` green; deployed live on Vercel with Neon `DATABASE_URL`/`DIRECT_URL` set. Caught and fixed a real secret accidentally placed in the tracked `.env.example` before it was committed — moved to gitignored `.env.local`. No real data model yet (Phase 1). |
-| 1. Data layer | todo | | | |
+| 1. Data layer | done | 2026-10-04T05:16:39Z | 2026-10-04T06:03:19Z | Real Prisma schema migrated to Neon (User, Address, Category, Product, ProductVariant, Review, Cart, CartItem, Order, OrderItem, Deal). Seeded from DummyJSON only (no Faker, per scope cut): 150 products, 29 categories (9 top-level + 20 leaves), 40 variants on 10 apparel/shoe products, 449 reviews, 148 deals. Unit-tested the price/discount mapping logic (11 tests). `prisma migrate dev`'s schema-engine binary couldn't reach Neon's direct endpoint from this sandbox (Prisma Client's own connection worked fine) - worked around by hand-writing the one incremental migration's SQL and applying it through the working connection, registering it in `_prisma_migrations` so history stays correct on a normal network. No API routes yet - data verified directly via Prisma Client queries (Phase 3 builds the catalog API). |
 | 2. Global chrome | todo | | | |
 | 3. Browse & search | todo | | | |
 | 4. PDP | todo | | | |
