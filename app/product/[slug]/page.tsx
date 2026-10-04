@@ -44,6 +44,9 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         </div>
 
         <BuyBox
+          productId={product.id}
+          title={product.title}
+          image={(product.images as string[])[0]}
           product={{ basePrice, listPrice, stock: product.stock, isPrimeEligible: product.isPrimeEligible }}
           variants={variants}
         />
