@@ -54,7 +54,11 @@ export function AccountMenu() {
                   Account
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem disabled>Orders</DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link href="/orders" className="flex w-full">
+                  Orders
+                </Link>
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>Sign Out</DropdownMenuItem>
             </>
           ) : (
