@@ -1,9 +1,18 @@
 node_modules/
-.env
-.env.local
 dist/
 build/
 .next/
+/out/
+/coverage
+.DS_Store
+*.pem
+*.tsbuildinfo
+next-env.d.ts
+.vercel
+
+# env files - never commit secrets; .env.example is the one tracked exception
+.env*
+!.env.example
 
 # internal bookkeeping for the agent-log hooks (not part of the committed log format)
 .agent-logs/.state/

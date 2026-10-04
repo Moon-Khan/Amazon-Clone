@@ -1,0 +1,12 @@
+// Placeholder schema for Phase 0 (Foundation). Real data model (User, Product,
+// Category, Cart, Order, ...) is added in Phase 1 per docs/PLAN.md §8.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
