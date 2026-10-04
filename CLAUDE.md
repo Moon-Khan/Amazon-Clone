@@ -10,6 +10,7 @@ This repo is a 24-hour rebuild of amazon.com's core shopping experience (browse,
 1. Work on ONE phase at a time, only when the user explicitly says so (e.g. "Do Phase 3").
 2. At the start of any session, read `docs/PROGRESS.md` first and state which phase we're on before doing anything else.
 3. Before starting a phase, give a short plan (max 10 bullets) and wait for the user's OK — do not start implementation until they confirm.
+3a. Once approved, create and check out a branch named `phase-N-<kebab-case-name>` (e.g. `phase-3-browse-search`) off the latest `main` before writing any code for that phase. All of that phase's commits live on this branch — see "Git workflow" below for how it gets back to `main`.
 4. Keep it simple: no microservices, no message queues, no extra libraries/dependencies beyond what's in `docs/PLAN.md` without asking first.
 5. For UI, follow the screenshots in `screen shots/` as the visual source of truth.
 6. Never leave a phase half-broken. If something is taking too long, stub it, note the gap in `docs/PROGRESS.md`, and move on rather than blocking.
@@ -24,6 +25,16 @@ Still implemented despite the cuts: ISR on public pages, DB connection pooling, 
 ## Testing
 
 `npm run verify` is the single check command (typecheck + lint + vitest + build). Write unit/API tests only for risky logic: cart totals, checkout/stock decrement, search/filter queries. Maintain one Playwright smoke test for the main flow (browse → PDP → cart → checkout), extended each phase.
+
+## Git workflow
+
+Branch per phase, starting from Phase 3 (Phases 0–2 shipped directly to `main` before this convention existed — not rewritten retroactively).
+
+- Phase start (after plan approval): `git checkout main && git pull && git checkout -b phase-N-<name>`.
+- All of that phase's commits land on `phase-N-<name>`, pushed to `origin` as work progresses (so the branch itself is also a backup, not just a local staging area).
+- `/phase-done` closes the loop: verify → update `docs/PROGRESS.md` → commit on the phase branch → merge into `main` (`git checkout main && git merge --no-ff phase-N-<name>`) → push `main`.
+- `main` is what Vercel's production deployment tracks, so it must always build and reflect the last *completed* phase — never merge a phase into `main` before its `/phase-done` verify has passed.
+- The phase branch is kept (not deleted) after merging, for history/traceability.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

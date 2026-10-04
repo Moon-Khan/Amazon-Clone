@@ -22,3 +22,4 @@ Status legend: `todo` / `doing` / `done`. Times in UTC. Update this file as part
 - **Seeding**: DummyJSON only, ~100–150 products, color/size variants added to 10–15 products (not Faker-generated at volume).
 - **Still in scope despite the cuts**: ISR on public pages, DB connection pooling, indexes on all FK columns, pagination on list endpoints, a transactional stock-safe checkout.
 - **Working mode**: one phase at a time, only on the user's explicit "Do Phase N." A short plan (max 10 bullets) is given and approved before each phase starts.
+- **Git workflow**: starting with Phase 3, each phase is built on its own `phase-N-<name>` branch, merged into `main` only once that phase's `/phase-done` verify passes (see CLAUDE.md § Git workflow). Phases 0–2 were pushed directly to `main` before this convention was adopted and are not retroactively rebranched.
