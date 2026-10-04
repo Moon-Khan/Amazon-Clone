@@ -1,18 +1,30 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { PriceBlock } from "@/components/catalog/PriceBlock";
 import { resolveVariantPricing, type VariantOption } from "@/lib/pdp";
+import { notifyCartUpdated } from "@/lib/cart-events";
+import { AddToCartModal } from "./AddToCartModal";
 
 export function BuyBox({
+  productId,
+  title,
+  image,
   product,
   variants,
 }: {
+  productId: string;
+  title: string;
+  image?: string;
   product: { basePrice: number; listPrice: number | null; stock: number; isPrimeEligible: boolean };
   variants: VariantOption[];
 }) {
+  const router = useRouter();
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(variants[0]?.id ?? null);
   const [quantity, setQuantity] = useState(1);
+  const [submitting, setSubmitting] = useState(false);
+  const [modal, setModal] = useState<{ subtotal: number; itemCount: number } | null>(null);
 
   const resolved = useMemo(
     () => resolveVariantPricing(product, variants, selectedVariantId),
@@ -20,6 +32,34 @@ export function BuyBox({
   );
   const inStock = resolved.stock > 0;
   const maxQty = Math.min(resolved.stock, 10);
+
+  async function addToCart(): Promise<boolean> {
+    setSubmitting(true);
+    const res = await fetch("/api/cart/items", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId, variantId: selectedVariantId, quantity }),
+    });
+    setSubmitting(false);
+
+    if (res.status === 401) {
+      router.push("/login");
+      return false;
+    }
+    if (!res.ok) return false;
+
+    const data = await res.json();
+    const subtotal = data.cart.items.reduce(
+      (sum: number, item: { quantity: number; product: { basePrice: string }; variant: { priceDelta: string } | null }) =>
+        sum + (Number(item.product.basePrice) + (item.variant ? Number(item.variant.priceDelta) : 0)) * item.quantity,
+      0,
+    );
+    const itemCount = data.cart.items.reduce((sum: number, item: { quantity: number }) => sum + item.quantity, 0);
+
+    notifyCartUpdated();
+    setModal({ subtotal, itemCount });
+    return true;
+  }
 
   return (
     <div className="w-full shrink-0 space-y-4 rounded-lg border p-5 sm:w-80">
@@ -76,14 +116,18 @@ export function BuyBox({
       <div className="flex flex-col gap-2">
         <button
           type="button"
-          disabled={!inStock}
+          disabled={!inStock || submitting}
+          onClick={addToCart}
           className="rounded-full bg-az-cta-yellow px-4 py-2 text-sm font-medium hover:bg-az-cta-yellow-hover disabled:cursor-not-allowed disabled:opacity-50"
         >
           Add to Cart
         </button>
         <button
           type="button"
-          disabled={!inStock}
+          disabled={!inStock || submitting}
+          onClick={async () => {
+            if (await addToCart()) router.push("/cart");
+          }}
           className="rounded-full bg-az-cta-orange px-4 py-2 text-sm font-medium hover:bg-az-cta-orange-hover disabled:cursor-not-allowed disabled:opacity-50"
         >
           Buy Now
@@ -92,6 +136,16 @@ export function BuyBox({
 
       {product.isPrimeEligible && <p className="text-xs font-bold text-az-prime">✔ prime eligible</p>}
       <p className="text-xs text-muted-foreground">Shipped from and sold by Amazon Clone.</p>
+
+      {modal && (
+        <AddToCartModal
+          open
+          onOpenChange={(open) => !open && setModal(null)}
+          item={{ title, image, price: resolved.price, quantity }}
+          subtotal={modal.subtotal}
+          itemCount={modal.itemCount}
+        />
+      )}
     </div>
   );
 }

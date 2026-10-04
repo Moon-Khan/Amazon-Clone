@@ -5,8 +5,9 @@ import { SearchBar } from "./SearchBar";
 import { LanguagePopover } from "./LanguagePopover";
 import { AccountMenu } from "./AccountMenu";
 import { LocationPickerModal } from "./LocationPickerModal";
+import { CartBadge } from "./CartBadge";
 
-export function Header({ cartCount = 0 }: { cartCount?: number }) {
+export function Header() {
   return (
     <header className="flex items-center gap-2 bg-az-header px-2 py-2 sm:gap-4 sm:px-4">
       <Logo className="shrink-0" />
@@ -45,9 +46,7 @@ export function Header({ cartCount = 0 }: { cartCount?: number }) {
       <Link href="/cart" className="flex items-end gap-1 px-2 py-1 text-white hover:border hover:border-white">
         <span className="relative">
           <ShoppingCart className="h-7 w-7" />
-          <span className="absolute -top-1.5 left-3.5 text-sm font-bold text-az-cta-orange">
-            {cartCount}
-          </span>
+          <CartBadge />
         </span>
         <span className="hidden text-sm font-bold sm:inline">Cart</span>
       </Link>
