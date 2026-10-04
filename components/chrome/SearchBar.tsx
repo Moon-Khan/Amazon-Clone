@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { Search } from "lucide-react";
 import {
   Select,
@@ -7,31 +10,32 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const DEPARTMENTS = [
-  "All",
-  "Electronics",
-  "Beauty & Personal Care",
-  "Men's Fashion",
-  "Women's Fashion",
-  "Home & Kitchen",
-  "Grocery",
-  "Sports & Outdoors",
-  "Automotive",
-  "Accessories",
+const DEPARTMENTS: { label: string; value: string }[] = [
+  { label: "All", value: "all" },
+  { label: "Electronics", value: "electronics" },
+  { label: "Beauty & Personal Care", value: "beauty-personal-care" },
+  { label: "Men's Fashion", value: "mens-fashion" },
+  { label: "Women's Fashion", value: "womens-fashion" },
+  { label: "Home & Kitchen", value: "home-kitchen" },
+  { label: "Grocery", value: "grocery" },
+  { label: "Sports & Outdoors", value: "sports-outdoors" },
+  { label: "Automotive", value: "automotive" },
+  { label: "Accessories", value: "accessories" },
 ];
 
-/** Search is visual/navigational only until Phase 3 wires it to the catalog API. */
 export function SearchBar() {
+  const [department, setDepartment] = useState("all");
+
   return (
     <form action="/search" className="flex h-10 flex-1" role="search" aria-label="Site search">
-      <Select defaultValue="All" name="department">
+      <Select value={department} onValueChange={(v) => v && setDepartment(v)} name="category">
         <SelectTrigger className="w-auto rounded-r-none rounded-l-md border-r bg-neutral-100 text-xs text-black focus-visible:ring-0">
-          <SelectValue />
+          <SelectValue>{DEPARTMENTS.find((d) => d.value === department)?.label ?? "All"}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           {DEPARTMENTS.map((dept) => (
-            <SelectItem key={dept} value={dept}>
-              {dept}
+            <SelectItem key={dept.value} value={dept.value}>
+              {dept.label}
             </SelectItem>
           ))}
         </SelectContent>
