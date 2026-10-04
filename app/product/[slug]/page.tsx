@@ -4,6 +4,7 @@ import { getProductBySlug, getRelatedProducts, toProductCardData } from "@/lib/c
 import { ImageGallery } from "@/components/pdp/ImageGallery";
 import { BuyBox } from "@/components/pdp/BuyBox";
 import { ReviewList } from "@/components/pdp/ReviewList";
+import { ReviewForm } from "@/components/pdp/ReviewForm";
 import { RatingStars } from "@/components/catalog/RatingStars";
 import { ProductGrid } from "@/components/catalog/ProductGrid";
 
@@ -59,8 +60,9 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         </section>
       )}
 
-      <section>
-        <h2 className="mb-4 text-xl font-bold">Customer reviews</h2>
+      <section className="space-y-6">
+        <h2 className="text-xl font-bold">Customer reviews</h2>
+        <ReviewForm productId={product.id} />
         <ReviewList reviews={product.reviews} />
       </section>
     </div>
