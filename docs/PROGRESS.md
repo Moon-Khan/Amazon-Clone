@@ -4,7 +4,7 @@ Status legend: `todo` / `doing` / `done`. Times in UTC. Update this file as part
 
 | Phase | Status | Start | End | Notes / known gaps |
 |---|---|---|---|---|
-| 0. Foundation | todo | | | |
+| 0. Foundation | done | 2026-10-04T04:03:08Z | 2026-10-04T05:02:53Z | Next.js 16+TS+Tailwind+shadcn scaffolded; Prisma 6.19.3 (pinned stable, not the 7.x RC that defaults in and changes config to `prisma.config.ts`+driver adapters) wired with placeholder `url`/`directUrl` schema; `npm run verify` green; deployed live on Vercel with Neon `DATABASE_URL`/`DIRECT_URL` set. Caught and fixed a real secret accidentally placed in the tracked `.env.example` before it was committed — moved to gitignored `.env.local`. No real data model yet (Phase 1). |
 | 1. Data layer | todo | | | |
 | 2. Global chrome | todo | | | |
 | 3. Browse & search | todo | | | |
