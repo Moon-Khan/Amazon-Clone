@@ -5,7 +5,16 @@ import { ProductCard } from "@/components/catalog/ProductCard";
 export const revalidate = 60;
 
 export default async function Home() {
-  const [deals, rails] = await Promise.all([getTopDeals(8), getCategoryRails(6, 4)]);
+  // A transient DB hiccup here must never fail the whole build (this page is
+  // statically generated) or a live ISR revalidation - fall back to an empty
+  // home page rather than taking the site down.
+  let deals: Awaited<ReturnType<typeof getTopDeals>> = [];
+  let rails: Awaited<ReturnType<typeof getCategoryRails>> = [];
+  try {
+    [deals, rails] = await Promise.all([getTopDeals(8), getCategoryRails(6, 4)]);
+  } catch (err) {
+    console.error("Home page: failed to load deals/category rails", err);
+  }
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-8 px-4 py-6">
