@@ -135,6 +135,8 @@ model CartItem {
 
   @@unique([cartId, productId, variantId])
   @@index([cartId])
+  @@index([productId])
+  @@index([variantId])
 }
 
 model Order {
@@ -154,6 +156,7 @@ model Order {
 
   @@index([userId])
   @@index([placedAt])
+  @@index([addressId])
 }
 
 enum OrderStatus {
@@ -175,6 +178,8 @@ model OrderItem {
   unitPriceAtPurchase Decimal        @db.Decimal(10, 2)
 
   @@index([orderId])
+  @@index([productId])
+  @@index([variantId])
 }
 
 model Deal {
