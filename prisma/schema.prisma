@@ -19,10 +19,11 @@ model User {
   name         String
   createdAt    DateTime @default(now())
 
-  addresses Address[]
-  reviews   Review[]
-  cart      Cart?
-  orders    Order[]
+  addresses     Address[]
+  reviews       Review[]
+  cart          Cart?
+  orders        Order[]
+  wishlistItems WishlistItem[]
 }
 
 model Address {
@@ -77,6 +78,7 @@ model Product {
   cartItems  CartItem[]
   orderItems OrderItem[]
   deals      Deal[]
+  wishlistItems WishlistItem[]
 
   @@index([categoryId])
   @@index([categoryId, basePrice])
@@ -190,5 +192,18 @@ model Deal {
   startsAt        DateTime
   endsAt          DateTime
 
+  @@index([productId])
+}
+
+model WishlistItem {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  addedAt   DateTime @default(now())
+
+  @@unique([userId, productId])
+  @@index([userId])
   @@index([productId])
 }

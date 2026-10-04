@@ -40,6 +40,15 @@ export function AccountMenu() {
         )}
         <DropdownMenuGroup>
           <DropdownMenuLabel>Your Lists</DropdownMenuLabel>
+          {user ? (
+            <DropdownMenuItem>
+              <Link href="/wishlist" className="flex w-full">
+                Wishlist
+              </Link>
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem disabled>Wishlist</DropdownMenuItem>
+          )}
           {LISTS_LINKS.map((label) => (
             <DropdownMenuItem key={label} disabled>
               {label}

@@ -6,6 +6,7 @@ import { PriceBlock } from "@/components/catalog/PriceBlock";
 import { resolveVariantPricing, type VariantOption } from "@/lib/pdp";
 import { notifyCartUpdated } from "@/lib/cart-events";
 import { AddToCartModal } from "./AddToCartModal";
+import { WishlistButton } from "./WishlistButton";
 
 export function BuyBox({
   productId,
@@ -132,6 +133,7 @@ export function BuyBox({
         >
           Buy Now
         </button>
+        <WishlistButton productId={productId} />
       </div>
 
       {product.isPrimeEligible && <p className="text-xs font-bold text-az-prime">✔ prime eligible</p>}
