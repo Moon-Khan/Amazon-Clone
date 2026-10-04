@@ -46,6 +46,32 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Amazon brand chrome - fixed, not theme-variant (amazon.com's header/nav
+     stay dark regardless of OS light/dark mode). */
+  --color-az-header: var(--az-header);
+  --color-az-nav: var(--az-nav);
+  --color-az-nav-hover: var(--az-nav-hover);
+  --color-az-link: var(--az-link);
+  --color-az-cta-yellow: var(--az-cta-yellow);
+  --color-az-cta-yellow-hover: var(--az-cta-yellow-hover);
+  --color-az-cta-orange: var(--az-cta-orange);
+  --color-az-cta-orange-hover: var(--az-cta-orange-hover);
+  --color-az-prime: var(--az-prime);
+  --color-az-price: var(--az-price);
+}
+
+:root {
+  --az-header: #131921;
+  --az-nav: #232f3e;
+  --az-nav-hover: #37475a;
+  --az-link: #007185;
+  --az-cta-yellow: #ffd814;
+  --az-cta-yellow-hover: #f7ca00;
+  --az-cta-orange: #ffa41c;
+  --az-cta-orange-hover: #fa8900;
+  --az-prime: #146eb4;
+  --az-price: #b12704;
 }
 
 :root {

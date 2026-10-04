@@ -24,3 +24,13 @@ Still implemented despite the cuts: ISR on public pages, DB connection pooling, 
 ## Testing
 
 `npm run verify` is the single check command (typecheck + lint + vitest + build). Write unit/API tests only for risky logic: cart totals, checkout/stock decrement, search/filter queries. Maintain one Playwright smoke test for the main flow (browse → PDP → cart → checkout), extended each phase.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
