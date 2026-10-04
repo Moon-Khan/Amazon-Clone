@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useSession, signOut } from "next-auth/react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,27 +13,29 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const LISTS_LINKS = ["Create a List", "Find a List or Registry"];
-const ACCOUNT_LINKS = ["Account", "Orders", "Recommendations", "Browsing History"];
 
-/**
- * Guest-state account menu for Phase 2 (no auth wired yet - Phase 5 adds real
- * sessions and will swap the trigger text to "Hello, {name}").
- */
 export function AccountMenu() {
+  const { data: session } = useSession();
+  const user = session?.user ?? null;
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="flex flex-col px-2 py-1 text-left text-xs leading-tight text-white hover:border hover:border-white">
-        <span>Hello, sign in</span>
+        <span>Hello, {user ? user.name : "sign in"}</span>
         <span className="text-sm font-bold">Account &amp; Lists</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64">
-        <div className="px-2 py-1.5 text-xs text-muted-foreground">
-          New customer?{" "}
-          <Link href="/signup" className="text-az-link hover:underline">
-            Start here.
-          </Link>
-        </div>
-        <DropdownMenuSeparator />
+        {!user && (
+          <>
+            <div className="px-2 py-1.5 text-xs text-muted-foreground">
+              New customer?{" "}
+              <Link href="/signup" className="text-az-link hover:underline">
+                Start here.
+              </Link>
+            </div>
+            <DropdownMenuSeparator />
+          </>
+        )}
         <DropdownMenuGroup>
           <DropdownMenuLabel>Your Lists</DropdownMenuLabel>
           {LISTS_LINKS.map((label) => (
@@ -42,11 +47,22 @@ export function AccountMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuLabel>Your Account</DropdownMenuLabel>
-          {ACCOUNT_LINKS.map((label) => (
-            <DropdownMenuItem key={label} disabled>
-              {label}
-            </DropdownMenuItem>
-          ))}
+          {user ? (
+            <>
+              <DropdownMenuItem>
+                <Link href="/account" className="flex w-full">
+                  Account
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem disabled>Orders</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>Sign Out</DropdownMenuItem>
+            </>
+          ) : (
+            <>
+              <DropdownMenuItem disabled>Account</DropdownMenuItem>
+              <DropdownMenuItem disabled>Orders</DropdownMenuItem>
+            </>
+          )}
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
