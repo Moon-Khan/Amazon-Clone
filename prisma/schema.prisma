@@ -19,10 +19,11 @@ model User {
   name         String
   createdAt    DateTime @default(now())
 
-  addresses Address[]
-  reviews   Review[]
-  cart      Cart?
-  orders    Order[]
+  addresses     Address[]
+  reviews       Review[]
+  cart          Cart?
+  orders        Order[]
+  wishlistItems WishlistItem[]
 }
 
 model Address {
@@ -77,6 +78,7 @@ model Product {
   cartItems  CartItem[]
   orderItems OrderItem[]
   deals      Deal[]
+  wishlistItems WishlistItem[]
 
   @@index([categoryId])
   @@index([categoryId, basePrice])
@@ -133,6 +135,9 @@ model CartItem {
   quantity  Int
   addedAt   DateTime        @default(now())
 
+  protectionPlan      Boolean  @default(false)
+  protectionPlanPrice Decimal? @db.Decimal(10, 2)
+
   @@unique([cartId, productId, variantId])
   @@index([cartId])
   @@index([productId])
@@ -177,6 +182,9 @@ model OrderItem {
   quantity           Int
   unitPriceAtPurchase Decimal        @db.Decimal(10, 2)
 
+  protectionPlan      Boolean  @default(false)
+  protectionPlanPrice Decimal? @db.Decimal(10, 2)
+
   @@index([orderId])
   @@index([productId])
   @@index([variantId])
@@ -190,5 +198,18 @@ model Deal {
   startsAt        DateTime
   endsAt          DateTime
 
+  @@index([productId])
+}
+
+model WishlistItem {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  addedAt   DateTime @default(now())
+
+  @@unique([userId, productId])
+  @@index([userId])
   @@index([productId])
 }

@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { Logo } from "./Logo";
+import { useLocale } from "@/lib/i18n/LocaleProvider";
+import type { DictionaryKey } from "@/lib/i18n/dictionary";
 
 function comingSoon(feature: string) {
   return `/coming-soon?feature=${encodeURIComponent(feature)}`;
@@ -15,21 +17,21 @@ const REAL_ROUTES: Record<string, string> = {
   "Your Orders": "/orders",
 };
 
-const COLUMNS: { heading: string; links: string[] }[] = [
+const COLUMNS: { headingKey: DictionaryKey; links: string[] }[] = [
   {
-    heading: "Get to Know Us",
+    headingKey: "getToKnowUs",
     links: ["Careers", "About Us", "Accessibility", "Sustainability", "Press Center", "Investor Relations"],
   },
   {
-    heading: "Make Money with Us",
+    headingKey: "makeMoneyWithUs",
     links: ["Sell on Amazon Clone", "Become an Affiliate", "Advertise Your Products", "Self-Publish with Us"],
   },
   {
-    heading: "Payment Products",
+    headingKey: "paymentProducts",
     links: ["Amazon Clone Visa", "Store Card", "Gift Cards", "Reload Your Balance", "Currency Converter"],
   },
   {
-    heading: "Let Us Help You",
+    headingKey: "letUsHelpYou",
     links: ["Your Account", "Your Orders", "Customer Service", "Shipping Rates & Policies", "Returns & Replacements"],
   },
 ];
@@ -67,6 +69,8 @@ function hrefForLabel(label: string) {
 }
 
 export function Footer() {
+  const { t } = useLocale();
+
   return (
     <footer className="mt-auto bg-az-nav text-sm text-neutral-200">
       <button
@@ -74,13 +78,13 @@ export function Footer() {
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         className="block w-full bg-[#37475a] py-3 text-center hover:bg-az-nav-hover"
       >
-        Back to top
+        {t("backToTop")}
       </button>
 
       <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-6 py-10 sm:grid-cols-4">
         {COLUMNS.map((col) => (
-          <div key={col.heading}>
-            <h3 className="mb-3 font-bold text-white">{col.heading}</h3>
+          <div key={col.headingKey}>
+            <h3 className="mb-3 font-bold text-white">{t(col.headingKey)}</h3>
             <ul className="space-y-2">
               {col.links.map((label) => (
                 <li key={label}>

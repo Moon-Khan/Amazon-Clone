@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
+import { useLocale } from "@/lib/i18n/LocaleProvider";
 
 function comingSoon(feature: string) {
   return `/coming-soon?feature=${encodeURIComponent(feature)}`;
@@ -62,6 +63,7 @@ export function MegaMenu() {
   const [open, setOpen] = useState(false);
   const { data: session } = useSession();
   const user = session?.user ?? null;
+  const { t } = useLocale();
 
   const helpSection: MenuSection = {
     heading: "Help & Settings",
@@ -81,7 +83,7 @@ export function MegaMenu() {
         <svg width="18" height="14" viewBox="0 0 18 14" fill="none" aria-hidden="true">
           <path d="M1 1H17M1 7H17M1 13H17" stroke="white" strokeWidth="1.6" strokeLinecap="round" />
         </svg>
-        All
+        {t("all")}
       </button>
       <SheetContent side="left" className="w-80 overflow-y-auto bg-white p-0 sm:w-96">
         <SheetHeader className="flex-row items-center gap-3 space-y-0 bg-az-header px-4 py-4">
@@ -89,7 +91,7 @@ export function MegaMenu() {
             <X className="h-5 w-5" />
           </SheetClose>
           <SheetTitle className="text-base font-normal text-white">
-            Hello, {user ? user.name : "sign in"}
+            {user ? t("helloName", { name: user.name ?? "" }) : t("helloSignIn")}
           </SheetTitle>
         </SheetHeader>
 

@@ -1,10 +1,18 @@
 import { prisma } from "./prisma";
+import { calcProtectionPlanPrice } from "./protectionPlan";
 
-export type CartLineInput = { unitPrice: number; quantity: number };
+export type CartLineInput = { unitPrice: number; quantity: number; protectionPlanPrice?: number | null };
 
-/** Pure: sums line totals and item count for a cart. */
+/**
+ * Pure: sums line totals and item count for a cart. A line's protection-plan
+ * price is a flat add-on for that line (not multiplied by quantity) - it
+ * covers "this item", the same simplification real add-on SKUs use.
+ */
 export function computeTotals(lines: CartLineInput[]): { subtotal: number; itemCount: number } {
-  const subtotal = lines.reduce((sum, line) => sum + line.unitPrice * line.quantity, 0);
+  const subtotal = lines.reduce(
+    (sum, line) => sum + line.unitPrice * line.quantity + (line.protectionPlanPrice ?? 0),
+    0,
+  );
   const itemCount = lines.reduce((sum, line) => sum + line.quantity, 0);
   return { subtotal: Math.round(subtotal * 100) / 100, itemCount };
 }
@@ -34,12 +42,14 @@ export async function addItem(
   productId: string,
   variantId: string | null,
   quantity: number,
+  protectionPlan = false,
 ) {
   const cart = await getOrCreateCart(userId);
 
   const product = await prisma.product.findUniqueOrThrow({ where: { id: productId } });
   const variant = variantId ? await prisma.productVariant.findUniqueOrThrow({ where: { id: variantId } }) : null;
   const stockLimit = variant ? variant.stock : product.stock;
+  const unitPrice = product.basePrice.toNumber() + (variant?.priceDelta.toNumber() ?? 0);
 
   // Not using the cartId_productId_variantId compound-unique shortcut here:
   // Postgres treats NULL as distinct in unique indexes, so it wouldn't
@@ -52,10 +62,19 @@ export async function addItem(
   const desiredQuantity = Math.min((existing?.quantity ?? 0) + quantity, stockLimit);
   if (desiredQuantity <= 0) return getCart(userId);
 
+  // Sticky-on: once a line has the protection plan, re-adding the same
+  // product/variant keeps it, even if this particular call didn't ask for it.
+  const wantsPlan = Boolean(existing?.protectionPlan) || protectionPlan;
+  const planData = wantsPlan
+    ? { protectionPlan: true, protectionPlanPrice: calcProtectionPlanPrice(unitPrice) }
+    : { protectionPlan: false, protectionPlanPrice: null };
+
   if (existing) {
-    await prisma.cartItem.update({ where: { id: existing.id }, data: { quantity: desiredQuantity } });
+    await prisma.cartItem.update({ where: { id: existing.id }, data: { quantity: desiredQuantity, ...planData } });
   } else {
-    await prisma.cartItem.create({ data: { cartId: cart.id, productId, variantId, quantity: desiredQuantity } });
+    await prisma.cartItem.create({
+      data: { cartId: cart.id, productId, variantId, quantity: desiredQuantity, ...planData },
+    });
   }
 
   return getCart(userId);

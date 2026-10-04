@@ -17,7 +17,14 @@ type Address = {
   isDefault: boolean;
 };
 
-type Line = { id: string; title: string; variant: string | null; quantity: number; unitPrice: number };
+type Line = {
+  id: string;
+  title: string;
+  variant: string | null;
+  quantity: number;
+  unitPrice: number;
+  protectionPlanPrice: number | null;
+};
 type Totals = { subtotal: number; tax: number; shippingFee: number; total: number };
 
 export function CheckoutForm({ addresses, items, totals }: { addresses: Address[]; items: Line[]; totals: Totals }) {
@@ -171,12 +178,20 @@ export function CheckoutForm({ addresses, items, totals }: { addresses: Address[
         <h2 className="text-lg font-bold">Order summary</h2>
         <ul className="space-y-1 text-sm">
           {items.map((item) => (
-            <li key={item.id} className="flex justify-between gap-2">
-              <span className="line-clamp-1">
-                {item.title}
-                {item.variant ? ` (${item.variant})` : ""} &times; {item.quantity}
-              </span>
-              <span className="shrink-0">${(item.unitPrice * item.quantity).toFixed(2)}</span>
+            <li key={item.id}>
+              <div className="flex justify-between gap-2">
+                <span className="line-clamp-1">
+                  {item.title}
+                  {item.variant ? ` (${item.variant})` : ""} &times; {item.quantity}
+                </span>
+                <span className="shrink-0">${(item.unitPrice * item.quantity).toFixed(2)}</span>
+              </div>
+              {item.protectionPlanPrice !== null && (
+                <div className="flex justify-between gap-2 text-xs text-muted-foreground">
+                  <span>2-Year Protection Plan</span>
+                  <span className="shrink-0">${item.protectionPlanPrice.toFixed(2)}</span>
+                </div>
+              )}
             </li>
           ))}
         </ul>

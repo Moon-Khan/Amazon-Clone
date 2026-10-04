@@ -21,6 +21,7 @@ export default async function CheckoutPage() {
     variant: item.variant?.value ?? null,
     quantity: item.quantity,
     unitPrice: item.product.basePrice.toNumber() + (item.variant ? item.variant.priceDelta.toNumber() : 0),
+    protectionPlanPrice: item.protectionPlanPrice ? item.protectionPlanPrice.toNumber() : null,
   }));
 
   const { subtotal } = computeTotals(lines);

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
+import { useLocale } from "@/lib/i18n/LocaleProvider";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,12 +18,13 @@ const LISTS_LINKS = ["Create a List", "Find a List or Registry"];
 export function AccountMenu() {
   const { data: session } = useSession();
   const user = session?.user ?? null;
+  const { t } = useLocale();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="flex flex-col px-2 py-1 text-left text-xs leading-tight text-white hover:border hover:border-white">
-        <span>Hello, {user ? user.name : "sign in"}</span>
-        <span className="text-sm font-bold">Account &amp; Lists</span>
+        <span>{user ? t("helloName", { name: user.name ?? "" }) : t("helloSignIn")}</span>
+        <span className="text-sm font-bold">{t("accountAndLists")}</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64">
         {!user && (
@@ -38,6 +40,15 @@ export function AccountMenu() {
         )}
         <DropdownMenuGroup>
           <DropdownMenuLabel>Your Lists</DropdownMenuLabel>
+          {user ? (
+            <DropdownMenuItem>
+              <Link href="/wishlist" className="flex w-full">
+                Wishlist
+              </Link>
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem disabled>Wishlist</DropdownMenuItem>
+          )}
           {LISTS_LINKS.map((label) => (
             <DropdownMenuItem key={label} disabled>
               {label}

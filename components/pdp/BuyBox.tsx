@@ -4,8 +4,10 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PriceBlock } from "@/components/catalog/PriceBlock";
 import { resolveVariantPricing, type VariantOption } from "@/lib/pdp";
+import { calcProtectionPlanPrice } from "@/lib/protectionPlan";
 import { notifyCartUpdated } from "@/lib/cart-events";
 import { AddToCartModal } from "./AddToCartModal";
+import { WishlistButton } from "./WishlistButton";
 
 export function BuyBox({
   productId,
@@ -23,6 +25,7 @@ export function BuyBox({
   const router = useRouter();
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(variants[0]?.id ?? null);
   const [quantity, setQuantity] = useState(1);
+  const [protectionPlan, setProtectionPlan] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [modal, setModal] = useState<{ subtotal: number; itemCount: number } | null>(null);
 
@@ -32,13 +35,14 @@ export function BuyBox({
   );
   const inStock = resolved.stock > 0;
   const maxQty = Math.min(resolved.stock, 10);
+  const protectionPlanPrice = calcProtectionPlanPrice(resolved.price);
 
   async function addToCart(): Promise<boolean> {
     setSubmitting(true);
     const res = await fetch("/api/cart/items", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productId, variantId: selectedVariantId, quantity }),
+      body: JSON.stringify({ productId, variantId: selectedVariantId, quantity, protectionPlan }),
     });
     setSubmitting(false);
 
@@ -50,8 +54,18 @@ export function BuyBox({
 
     const data = await res.json();
     const subtotal = data.cart.items.reduce(
-      (sum: number, item: { quantity: number; product: { basePrice: string }; variant: { priceDelta: string } | null }) =>
-        sum + (Number(item.product.basePrice) + (item.variant ? Number(item.variant.priceDelta) : 0)) * item.quantity,
+      (
+        sum: number,
+        item: {
+          quantity: number;
+          product: { basePrice: string };
+          variant: { priceDelta: string } | null;
+          protectionPlanPrice: string | null;
+        },
+      ) =>
+        sum +
+        (Number(item.product.basePrice) + (item.variant ? Number(item.variant.priceDelta) : 0)) * item.quantity +
+        (item.protectionPlanPrice ? Number(item.protectionPlanPrice) : 0),
       0,
     );
     const itemCount = data.cart.items.reduce((sum: number, item: { quantity: number }) => sum + item.quantity, 0);
@@ -113,6 +127,21 @@ export function BuyBox({
         </label>
       )}
 
+      {inStock && (
+        <label className="flex items-start gap-2 rounded border border-neutral-200 p-2.5 text-sm has-[:checked]:border-az-prime has-[:checked]:bg-neutral-50">
+          <input
+            type="checkbox"
+            checked={protectionPlan}
+            onChange={(e) => setProtectionPlan(e.target.checked)}
+            className="mt-0.5"
+          />
+          <span>
+            Add a <span className="font-medium">2-Year Protection Plan</span> for{" "}
+            <span className="font-medium">${protectionPlanPrice.toFixed(2)}</span>
+          </span>
+        </label>
+      )}
+
       <div className="flex flex-col gap-2">
         <button
           type="button"
@@ -132,6 +161,7 @@ export function BuyBox({
         >
           Buy Now
         </button>
+        <WishlistButton productId={productId} />
       </div>
 
       {product.isPrimeEligible && <p className="text-xs font-bold text-az-prime">✔ prime eligible</p>}
