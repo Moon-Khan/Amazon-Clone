@@ -206,6 +206,22 @@ export async function getTopDeals(limit = 8) {
   return deals.map((d) => d.product);
 }
 
+/** DB-touching: paginated deal-backed products for the standalone /deals page. */
+export async function getDealsPage(page: number, limit: number) {
+  const skip = (page - 1) * limit;
+  const [deals, total] = await Promise.all([
+    prisma.deal.findMany({
+      orderBy: { discountPercent: "desc" },
+      distinct: ["productId"],
+      skip,
+      take: limit,
+      include: { product: true },
+    }),
+    prisma.deal.findMany({ distinct: ["productId"], select: { productId: true } }).then((rows) => rows.length),
+  ]);
+  return { products: deals.map((d) => d.product), total, page, totalPages: Math.max(1, Math.ceil(total / limit)) };
+}
+
 /** DB-touching: a few top-level categories with a handful of preview products each, for home-page rails. */
 export async function getCategoryRails(categoryCount = 4, productsPerCategory = 4) {
   const topLevel = await prisma.category.findMany({

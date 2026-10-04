@@ -3,12 +3,17 @@
 import { ChevronRight, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { useSession, signOut } from "next-auth/react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
+
+function comingSoon(feature: string) {
+  return `/coming-soon?feature=${encodeURIComponent(feature)}`;
+}
 
 type MenuSection = {
   heading: string;
   links: { label: string; href: string; hasSubmenu?: boolean }[];
-  seeAll?: boolean;
+  seeAllHref?: string;
 };
 
 const SECTIONS: MenuSection[] = [
@@ -23,13 +28,13 @@ const SECTIONS: MenuSection[] = [
   {
     heading: "Digital Content & Devices",
     links: [
-      { label: "Prime Video", href: "#", hasSubmenu: true },
-      { label: "Amazon Music", href: "#", hasSubmenu: true },
-      { label: "Echo & Alexa", href: "#", hasSubmenu: true },
-      { label: "Fire Tablets", href: "#", hasSubmenu: true },
-      { label: "Fire TV", href: "#", hasSubmenu: true },
-      { label: "Kindle E-readers & Books", href: "#", hasSubmenu: true },
-      { label: "Audible Books & Originals", href: "#", hasSubmenu: true },
+      { label: "Prime Video", href: comingSoon("Prime Video"), hasSubmenu: true },
+      { label: "Amazon Music", href: comingSoon("Amazon Music"), hasSubmenu: true },
+      { label: "Echo & Alexa", href: comingSoon("Echo & Alexa"), hasSubmenu: true },
+      { label: "Fire Tablets", href: comingSoon("Fire Tablets"), hasSubmenu: true },
+      { label: "Fire TV", href: comingSoon("Fire TV"), hasSubmenu: true },
+      { label: "Kindle E-readers & Books", href: comingSoon("Kindle E-readers & Books"), hasSubmenu: true },
+      { label: "Audible Books & Originals", href: comingSoon("Audible Books & Originals"), hasSubmenu: true },
     ],
   },
   {
@@ -41,28 +46,30 @@ const SECTIONS: MenuSection[] = [
       { label: "Women's Fashion", href: "/category/womens-fashion" },
       { label: "Home & Kitchen", href: "/category/home-kitchen" },
     ],
-    seeAll: true,
+    seeAllHref: "/search",
   },
   {
     heading: "Programs & Features",
     links: [
-      { label: "Same-Day Delivery", href: "#" },
-      { label: "Medical Care & Pharmacy", href: "#" },
+      { label: "Same-Day Delivery", href: comingSoon("Same-Day Delivery") },
+      { label: "Medical Care & Pharmacy", href: comingSoon("Medical Care & Pharmacy") },
     ],
-    seeAll: true,
-  },
-  {
-    heading: "Help & Settings",
-    links: [
-      { label: "Customer Service", href: "#" },
-      { label: "Your Account", href: "#" },
-      { label: "Sign Out", href: "#" },
-    ],
+    seeAllHref: comingSoon("Programs & Features"),
   },
 ];
 
 export function MegaMenu() {
   const [open, setOpen] = useState(false);
+  const { data: session } = useSession();
+  const user = session?.user ?? null;
+
+  const helpSection: MenuSection = {
+    heading: "Help & Settings",
+    links: [
+      { label: "Customer Service", href: comingSoon("Customer Service") },
+      { label: "Your Account", href: user ? "/account" : "/login" },
+    ],
+  };
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -81,10 +88,12 @@ export function MegaMenu() {
           <SheetClose aria-label="Close menu" className="text-white">
             <X className="h-5 w-5" />
           </SheetClose>
-          <SheetTitle className="text-base font-normal text-white">Hello, sign in</SheetTitle>
+          <SheetTitle className="text-base font-normal text-white">
+            Hello, {user ? user.name : "sign in"}
+          </SheetTitle>
         </SheetHeader>
 
-        {SECTIONS.map((section) => (
+        {[...SECTIONS, helpSection].map((section) => (
           <div key={section.heading} className="border-b py-3">
             <h3 className="px-4 pb-2 text-base font-bold">{section.heading}</h3>
             <ul>
@@ -100,10 +109,24 @@ export function MegaMenu() {
                   </Link>
                 </li>
               ))}
-              {section.seeAll && (
+              {section.heading === "Help & Settings" && user && (
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOpen(false);
+                      signOut({ callbackUrl: "/" });
+                    }}
+                    className="flex w-full items-center justify-between px-4 py-2 text-left text-sm hover:bg-muted"
+                  >
+                    Sign Out
+                  </button>
+                </li>
+              )}
+              {section.seeAllHref && (
                 <li>
                   <Link
-                    href="#"
+                    href={section.seeAllHref}
                     onClick={() => setOpen(false)}
                     className="flex items-center gap-1 px-4 py-2 text-sm text-az-link hover:underline"
                   >

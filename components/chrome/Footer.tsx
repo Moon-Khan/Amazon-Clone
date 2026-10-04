@@ -3,6 +3,18 @@
 import Link from "next/link";
 import { Logo } from "./Logo";
 
+function comingSoon(feature: string) {
+  return `/coming-soon?feature=${encodeURIComponent(feature)}`;
+}
+
+// A handful of labels map to real pages already in this build; everything else
+// (consistent with the documented scope cuts) routes to a clear "not part of
+// this build" page instead of a dead link.
+const REAL_ROUTES: Record<string, string> = {
+  "Your Account": "/account",
+  "Your Orders": "/orders",
+};
+
 const COLUMNS: { heading: string; links: string[] }[] = [
   {
     heading: "Get to Know Us",
@@ -50,6 +62,10 @@ const SITEMAP: string[] = [
   "Amazon Renewed",
 ];
 
+function hrefForLabel(label: string) {
+  return REAL_ROUTES[label] ?? comingSoon(label);
+}
+
 export function Footer() {
   return (
     <footer className="mt-auto bg-az-nav text-sm text-neutral-200">
@@ -68,7 +84,7 @@ export function Footer() {
             <ul className="space-y-2">
               {col.links.map((label) => (
                 <li key={label}>
-                  <Link href="#" className="hover:underline">
+                  <Link href={hrefForLabel(label)} className="hover:underline">
                     {label}
                   </Link>
                 </li>
@@ -91,7 +107,7 @@ export function Footer() {
       <div className="border-t border-white/10">
         <div className="mx-auto grid max-w-6xl grid-cols-2 gap-x-6 gap-y-2 px-6 py-6 text-xs text-neutral-400 sm:grid-cols-4 md:grid-cols-6">
           {SITEMAP.map((label) => (
-            <Link key={label} href="#" className="hover:underline">
+            <Link key={label} href={hrefForLabel(label)} className="hover:underline">
               {label}
             </Link>
           ))}
@@ -100,10 +116,10 @@ export function Footer() {
 
       <div className="border-t border-white/10 px-6 py-4 text-center text-xs text-neutral-400">
         <div className="mb-2 flex justify-center gap-4">
-          <Link href="#" className="hover:underline">
+          <Link href={comingSoon("Conditions of Use")} className="hover:underline">
             Conditions of Use
           </Link>
-          <Link href="#" className="hover:underline">
+          <Link href={comingSoon("Privacy Notice")} className="hover:underline">
             Privacy Notice
           </Link>
         </div>
