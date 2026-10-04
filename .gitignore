@@ -1,0 +1,9 @@
+node_modules/
+.env
+.env.local
+dist/
+build/
+.next/
+
+# internal bookkeeping for the agent-log hooks (not part of the committed log format)
+.agent-logs/.state/
