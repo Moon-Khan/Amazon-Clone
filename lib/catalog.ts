@@ -229,6 +229,30 @@ export async function getCategoryRails(categoryCount = 4, productsPerCategory = 
   return rails;
 }
 
+/** DB-touching: full product detail for the PDP - variants, category, and reviews with reviewer names. */
+export async function getProductBySlug(slug: string) {
+  return prisma.product.findUnique({
+    where: { slug },
+    include: {
+      category: true,
+      variants: { orderBy: { value: "asc" } },
+      reviews: {
+        orderBy: { createdAt: "desc" },
+        include: { user: { select: { name: true } } },
+      },
+    },
+  });
+}
+
+/** DB-touching: a handful of other products in the same category, for the PDP's related-products rail. */
+export async function getRelatedProducts(categoryId: string, excludeProductId: string, limit = 6) {
+  return prisma.product.findMany({
+    where: { categoryId, id: { not: excludeProductId } },
+    orderBy: [{ ratingCount: "desc" }],
+    take: limit,
+  });
+}
+
 export async function getCategoryTree() {
   const categories = await prisma.category.findMany({ orderBy: { name: "asc" } });
   const byParent = new Map<string | null, typeof categories>();
