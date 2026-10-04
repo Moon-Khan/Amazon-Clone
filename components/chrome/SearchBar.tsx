@@ -45,7 +45,7 @@ export function SearchBar() {
         name="q"
         placeholder="Search Amazon Clone"
         aria-label="Search"
-        className="h-10 flex-1 border-0 px-3 text-base text-black outline-none"
+        className="h-10 flex-1 border-0 bg-white px-3 text-base text-black outline-none"
       />
       <button
         type="submit"
