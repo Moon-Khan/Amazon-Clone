@@ -13,6 +13,8 @@ export type CartLineItemData = {
   stock: number;
   product: { slug: string; title: string; images: string[] };
   variant: { value: string } | null;
+  protectionPlan: boolean;
+  protectionPlanPrice: number | null;
 };
 
 export function CartLineItem({ item }: { item: CartLineItemData }) {
@@ -51,6 +53,11 @@ export function CartLineItem({ item }: { item: CartLineItemData }) {
         </Link>
         {item.variant && <p className="text-sm text-muted-foreground">Size: {item.variant.value}</p>}
         <p className="mt-1 font-medium">${item.unitPrice.toFixed(2)}</p>
+        {item.protectionPlan && item.protectionPlanPrice !== null && (
+          <p className="text-sm text-az-link">
+            + 2-Year Protection Plan: ${item.protectionPlanPrice.toFixed(2)}
+          </p>
+        )}
         <div className="mt-2 flex items-center gap-4 text-sm">
           <label className="flex items-center gap-2">
             Qty:

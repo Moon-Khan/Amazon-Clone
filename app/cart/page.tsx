@@ -14,9 +14,13 @@ export default async function CartPage() {
     stock: item.variant ? item.variant.stock : item.product.stock,
     product: { slug: item.product.slug, title: item.product.title, images: item.product.images as string[] },
     variant: item.variant ? { value: item.variant.value } : null,
+    protectionPlan: item.protectionPlan,
+    protectionPlanPrice: item.protectionPlanPrice ? item.protectionPlanPrice.toNumber() : null,
   }));
 
-  const { subtotal, itemCount } = computeTotals(items.map((i) => ({ unitPrice: i.unitPrice, quantity: i.quantity })));
+  const { subtotal, itemCount } = computeTotals(
+    items.map((i) => ({ unitPrice: i.unitPrice, quantity: i.quantity, protectionPlanPrice: i.protectionPlanPrice })),
+  );
 
   if (items.length === 0) {
     return (

@@ -23,14 +23,22 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         <h2 className="mb-3 font-bold">Items</h2>
         <ul className="space-y-3">
           {order.items.map((item) => (
-            <li key={item.id} className="flex justify-between text-sm">
-              <span>
-                <Link href={`/product/${item.product.slug}`} className="hover:text-az-link hover:underline">
-                  {item.product.title}
-                </Link>
-                {item.variant ? ` (${item.variant.value})` : ""} &times; {item.quantity}
-              </span>
-              <span>${(item.unitPriceAtPurchase.toNumber() * item.quantity).toFixed(2)}</span>
+            <li key={item.id} className="text-sm">
+              <div className="flex justify-between">
+                <span>
+                  <Link href={`/product/${item.product.slug}`} className="hover:text-az-link hover:underline">
+                    {item.product.title}
+                  </Link>
+                  {item.variant ? ` (${item.variant.value})` : ""} &times; {item.quantity}
+                </span>
+                <span>${(item.unitPriceAtPurchase.toNumber() * item.quantity).toFixed(2)}</span>
+              </div>
+              {item.protectionPlan && item.protectionPlanPrice && (
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>2-Year Protection Plan</span>
+                  <span>${item.protectionPlanPrice.toNumber().toFixed(2)}</span>
+                </div>
+              )}
             </li>
           ))}
         </ul>

@@ -48,6 +48,8 @@ export async function placeOrder(userId: string, addressId: string) {
     quantity: item.quantity,
     unitPrice: item.product.basePrice.toNumber() + (item.variant ? item.variant.priceDelta.toNumber() : 0),
     title: item.product.title,
+    protectionPlan: item.protectionPlan,
+    protectionPlanPrice: item.protectionPlanPrice ? item.protectionPlanPrice.toNumber() : null,
   }));
 
   const { subtotal, tax, shippingFee, total } = calcOrderTotals(computeTotals(lines).subtotal);
@@ -82,6 +84,8 @@ export async function placeOrder(userId: string, addressId: string) {
             variantId: line.variantId,
             quantity: line.quantity,
             unitPriceAtPurchase: line.unitPrice,
+            protectionPlan: line.protectionPlan,
+            protectionPlanPrice: line.protectionPlanPrice,
           })),
         },
       },

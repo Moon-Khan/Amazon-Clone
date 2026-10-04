@@ -135,6 +135,9 @@ model CartItem {
   quantity  Int
   addedAt   DateTime        @default(now())
 
+  protectionPlan      Boolean  @default(false)
+  protectionPlanPrice Decimal? @db.Decimal(10, 2)
+
   @@unique([cartId, productId, variantId])
   @@index([cartId])
   @@index([productId])
@@ -178,6 +181,9 @@ model OrderItem {
   variant            ProductVariant? @relation(fields: [variantId], references: [id])
   quantity           Int
   unitPriceAtPurchase Decimal        @db.Decimal(10, 2)
+
+  protectionPlan      Boolean  @default(false)
+  protectionPlanPrice Decimal? @db.Decimal(10, 2)
 
   @@index([orderId])
   @@index([productId])
