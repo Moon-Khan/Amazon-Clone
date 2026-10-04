@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { Logo } from "@/components/chrome/Logo";
 
@@ -16,25 +17,33 @@ export default function SignupPage() {
     setSubmitting(true);
 
     const formData = new FormData(e.currentTarget);
+    const email = formData.get("email");
+    const password = formData.get("password");
+
     const res = await fetch("/api/auth/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: formData.get("name"),
-        email: formData.get("email"),
-        password: formData.get("password"),
-      }),
+      body: JSON.stringify({ name: formData.get("name"), email, password }),
     });
 
-    setSubmitting(false);
-
     if (!res.ok) {
+      setSubmitting(false);
       const data = await res.json().catch(() => ({}));
       setError(data.error ?? "Something went wrong. Please try again.");
       return;
     }
 
-    router.push("/login?signedup=1");
+    // Account created - sign in immediately so the user lands on the
+    // homepage already logged in, no separate login step or reload needed.
+    const signInRes = await signIn("credentials", { email, password, redirect: false });
+    setSubmitting(false);
+
+    if (!signInRes || signInRes.error) {
+      router.push("/login");
+      return;
+    }
+
+    router.push("/");
   }
 
   return (

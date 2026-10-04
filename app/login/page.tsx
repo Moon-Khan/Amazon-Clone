@@ -1,13 +1,37 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
-import { loginAction } from "@/lib/auth-actions";
 import { Logo } from "@/components/chrome/Logo";
 
-export default async function LoginPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ error?: string }>;
-}) {
-  const { error } = await searchParams;
+export default function LoginPage() {
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+    setSubmitting(true);
+
+    const formData = new FormData(e.currentTarget);
+    const res = await signIn("credentials", {
+      email: formData.get("email"),
+      password: formData.get("password"),
+      redirect: false,
+    });
+
+    setSubmitting(false);
+
+    if (!res || res.error) {
+      setError("Invalid email or password.");
+      return;
+    }
+
+    router.push("/");
+  }
 
   return (
     <div className="mx-auto flex w-full max-w-sm flex-col items-center gap-4 px-4 py-10">
@@ -17,11 +41,9 @@ export default async function LoginPage({
       <div className="w-full rounded border p-6">
         <h1 className="mb-4 text-2xl font-medium">Sign in</h1>
         {error && (
-          <p className="mb-4 rounded border border-az-price bg-red-50 p-2 text-sm text-az-price">
-            Invalid email or password.
-          </p>
+          <p className="mb-4 rounded border border-az-price bg-red-50 p-2 text-sm text-az-price">{error}</p>
         )}
-        <form action={loginAction} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="email" className="mb-1 block text-sm font-medium">
               Email
@@ -49,9 +71,10 @@ export default async function LoginPage({
           </div>
           <button
             type="submit"
-            className="w-full rounded-full bg-az-cta-yellow px-4 py-2 text-sm font-medium hover:bg-az-cta-yellow-hover"
+            disabled={submitting}
+            className="w-full rounded-full bg-az-cta-yellow px-4 py-2 text-sm font-medium hover:bg-az-cta-yellow-hover disabled:opacity-50"
           >
-            Sign in
+            {submitting ? "Signing in..." : "Sign in"}
           </button>
         </form>
       </div>
